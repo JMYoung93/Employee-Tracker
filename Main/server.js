@@ -1,6 +1,7 @@
 const inquirer = require('inquirer');
 require("console.table");
-const mysql = require('mysql2')
+const mysql = require('mysql2');
+
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -17,11 +18,11 @@ const db = mysql.createConnection(
     },
     console.log(`Connected to the employee tracker database.`)
   );
-
-  const questionList = [{
+function launchApp() {
+  const questionList = inquirer.prompt([{
       type: "list",
       name: "userSelect",
-      message: "Please select an option below.",
+      message: "Welcome to your employee database! Please select an option below.",
       choices: [
         "View All Employees",
         "Add an Employee",
@@ -35,9 +36,10 @@ const db = mysql.createConnection(
 		'Delete An Employee',
         'Update A Role Salary',
         'Update Employee\'s Manager',
-        'Update Employee\'s Salary'
+        'Update Employee\'s Salary',
+        'Exit'
       ]
-  }];
+  }]);
 
 switch (answer.userSelect){
     case 'View All Employees':
@@ -76,8 +78,19 @@ switch (answer.userSelect){
     case 'Update Employee\'s Salary':
             updatePay();
             break;
+    case 'Exit':
+            console.log('Goodbye!')
+            connection.end();
+            break;
 };
 function viewEmployee() {
-    database.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id`);
-    console.table(viewEmployee);
+    let query = 'SELECT * FROM employee';
+    connection.query(query, function(err, res) {
+    if(err) throw err;
+    console.log(res.length + ' employees are currently employed!');
+    console.table('Here are all employees:', res);
+    launchApp();
+})
 }
+};
+ //database.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id`);
