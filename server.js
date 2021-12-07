@@ -2,10 +2,6 @@ const inquirer = require('inquirer');
 require("console.table");
 const mysql = require('mysql2');
 
-
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
 // Connect to database
 const db = mysql.createConnection(
     {
@@ -13,11 +9,17 @@ const db = mysql.createConnection(
       // MySQL username,
       user: 'root',
       // TODO: Add MySQL password here
-      password: '',
+      password: 'password',
       database: 'tracker_db'
     },
     console.log(`Connected to the employee tracker database.`)
   );
+  
+  db.connect(function (err) {
+    if (err) throw err;
+    console.log("Connected as id" + connection.threadId);
+  });
+
 function launchApp() {
   const questionList = inquirer.prompt([{
       type: "list",
@@ -32,8 +34,8 @@ function launchApp() {
         "Add a Department",
         "Add a Role",
         'Delete A Department',
-		'Delete A Role',
-		'Delete An Employee',
+	'Delete A Role',
+	'Delete An Employee',
         'Update A Role Salary',
         'Update Employee\'s Manager',
         'Update Employee\'s Salary',
@@ -93,4 +95,5 @@ function viewEmployee() {
 })
 }
 };
+launchApp();
  //database.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id`);
