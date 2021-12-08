@@ -2,19 +2,20 @@ const inquirer = require("inquirer");
 const table = require("console.table");
 const mysql = require("mysql2");
 
-// Connect to database
+//Establish connection to database
 const db = mysql.createConnection(
   {
     host: "localhost",
-    // MySQL username,
+    // MySQL username
     user: "root",
-    // TODO: Add MySQL password here
+    //MySQL password
     password: "password",
+    //Database being connected to
     database: "tracker_db",
   },
   console.log(`Connected to the employee tracker database.`)
 );
-//Establish connection to database
+
 db.connect(function (err) {
   if (err) throw err;
 });
@@ -78,7 +79,7 @@ function launchApp() {
       launchApp();
     });
   }
-//Enter nw employee information and add to employee table
+  //Enter new employee information and add to employee table
   function addEmployee() {
     db.query("SELECT * FROM role", function (err, res) {
       if (err) throw err;
@@ -130,7 +131,7 @@ function launchApp() {
             },
             function (err) {
               if (err) throw err;
-              console.table(res) 
+              console.table(res);
               console.log("Your employee has been added!");
               launchApp();
             }
@@ -138,31 +139,30 @@ function launchApp() {
         });
     });
   }
-//Add a department to department table
- function addDepartment(){
-         inquirer
-         .prompt([
-                 {
-                 name: 'newDept',
-                 type: 'input',
-                 message: 'What is the name of the department?'
-                 }
-         ]).then(function(answer){
-                 db.query(
-                         'INSERT INTO department SET ?',
-                         {
-                                 name: answer.newDept
-                         });
-                         let query = 'SELECT * FROM department';
-                         db.query(query, function(err, res){
-                                 if(err) throw err;
-                                 console.log('Your new department has been added!');
-                                 console.table('All Departments:', res);
-                                 launchApp();
-                         })
-         })
- };
-//Add a new role to role table
+  //Add a department to department table
+  function addDepartment() {
+    inquirer
+      .prompt([
+        {
+          name: "newDept",
+          type: "input",
+          message: "What is the name of the department?",
+        },
+      ])
+      .then(function (answer) {
+        db.query("INSERT INTO department SET ?", {
+          name: answer.newDept,
+        });
+        let query = "SELECT * FROM department";
+        db.query(query, function (err, res) {
+          if (err) throw err;
+          console.log("Your new department has been added!");
+          console.table("All Departments:", res);
+          launchApp();
+        });
+      });
+  }
+  //Add a new role to role table
   function addRole() {
     db.query("SELECT * FROM department", function (err, res) {
       if (err) throw err;
@@ -215,75 +215,72 @@ function launchApp() {
         });
     });
   }
-  //View all departments 
-  function viewDepartment(){
-          let query = 'SELECT * FROM department';
-          db.query(query, function(err, res){
-                  if(err) throw err;
-                  console.table('All Departments:', res);
-                  launchApp();
-          })
+  //View all departments
+  function viewDepartment() {
+    let query = "SELECT * FROM department";
+    db.query(query, function (err, res) {
+      if (err) throw err;
+      console.table("All Departments:", res);
+      launchApp();
+    });
   }
-//View all roles
-  function viewRoles(){
-          let query = 'SELECT * FROM role';
-          db.query(query, function(err, res){
-                  if(err) throw err;
-                  console.table('All Roles:', res);
-                  launchApp();
-          })
+  //View all roles
+  function viewRoles() {
+    let query = "SELECT * FROM role";
+    db.query(query, function (err, res) {
+      if (err) throw err;
+      console.table("All Roles:", res);
+      launchApp();
+    });
   }
-//Update a current role
-  function updateRole(){
-         let query = 'UPDATE employee SET role_id = ? WHERE id = ?';
-         db.query(
-                `SELECT CONCAT(first_name," ",last_name) AS nameOfEmployee, id FROM employee;`,
-                function(errEmployee, resEmployee) {
-                  if (errEmployee) throw errEmployee;
-                  db.query("Select title, id FROM role", function(
-                    errRole,
-                    resRole
-                  ) {
-                    if (errRole) throw errRole;
-                    inquirer
-                      .prompt([
-                        {
-                          name: "nameOfEmployee",
-                          type: "list",
-                          message: "Select employee.",
-                          choices: resEmployee.map(employee => {
-                            return {
-                              name: employee.nameOfEmployee,
-                              value: employee.id
-                            };
-                          })
-                        },
-                        {
-                          name: "employeeRole",
-                          type: "list",
-                          message: "Select employee's new role.",
-                          choices: resRole.map(role => {
-                            return {
-                              name: role.title,
-                              value: role.id
-                            };
-                          })
-                        }
-                      ])
-                      .then(function(answer) {
-                        db.query(
-                          "UPDATE employee SET role_id = ? WHERE id = ?",
-                          [answer.employeeRole, answer.nameOfEmployee],
-                          function(err) {
-                            if (err) throw err;
-                            console.log("Employee role updated!");
-                            launchApp();
-                          }
-                        );
-                      });
-                  });
+  //Update a current role
+  function updateRole() {
+    let query = "UPDATE employee SET role_id = ? WHERE id = ?";
+    db.query(
+      `SELECT CONCAT(first_name," ",last_name) AS nameOfEmployee, id FROM employee;`,
+      function (errEmployee, resEmployee) {
+        if (errEmployee) throw errEmployee;
+        db.query("Select title, id FROM role", function (errRole, resRole) {
+          if (errRole) throw errRole;
+          inquirer
+            .prompt([
+              {
+                name: "nameOfEmployee",
+                type: "list",
+                message: "Select employee.",
+                choices: resEmployee.map((employee) => {
+                  return {
+                    name: employee.nameOfEmployee,
+                    value: employee.id,
+                  };
+                }),
+              },
+              {
+                name: "employeeRole",
+                type: "list",
+                message: "Select employee's new role.",
+                choices: resRole.map((role) => {
+                  return {
+                    name: role.title,
+                    value: role.id,
+                  };
+                }),
+              },
+            ])
+            .then(function (answer) {
+              db.query(
+                "UPDATE employee SET role_id = ? WHERE id = ?",
+                [answer.employeeRole, answer.nameOfEmployee],
+                function (err) {
+                  if (err) throw err;
+                  console.log("Employee role has been updated!");
+                  launchApp();
                 }
               );
-            }
-        }
+            });
+        });
+      }
+    );
+  }
+}
 launchApp();
